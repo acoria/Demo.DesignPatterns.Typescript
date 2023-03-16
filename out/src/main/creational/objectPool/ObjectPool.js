@@ -5,16 +5,16 @@ var ObjectPool = /** @class */ (function () {
     function ObjectPool(numberOfSlots, factory) {
         this.numberOfSlots = numberOfSlots;
         this.factory = factory;
-        this.acquiredObjectStack = [];
-        this.releasedObjectStack = [];
+        this.acquired = [];
+        this.released = [];
     }
     ObjectPool.prototype.acquire = function () {
         var acquiredObject = null;
-        if (this.releasedObjectStack.length > 0) {
-            acquiredObject = this.releasedObjectStack.pop();
+        if (this.released.length > 0) {
+            acquiredObject = this.released.pop();
         }
         else {
-            if (this.acquiredObjectStack.length < this.numberOfSlots) {
+            if (this.acquired.length < this.numberOfSlots) {
                 acquiredObject = this.createNewObject();
             }
             else {
@@ -25,15 +25,15 @@ var ObjectPool = /** @class */ (function () {
         return acquiredObject;
     };
     ObjectPool.prototype.release = function (reservedObject) {
-        this.acquiredObjectStack.splice(this.acquiredObjectStack.indexOf(reservedObject), 1);
-        this.releasedObjectStack.push(reservedObject);
+        this.released.push(reservedObject);
+        this.acquired.splice(this.acquired.indexOf(reservedObject), 1);
     };
     ObjectPool.prototype.moveFromReleasedToAcquiredStack = function (releasedObject) {
-        this.acquiredObjectStack.push(releasedObject);
-        this.releasedObjectStack.splice(this.acquiredObjectStack.indexOf(releasedObject), 1);
+        this.acquired.push(releasedObject);
+        this.released.splice(this.acquired.indexOf(releasedObject), 1);
     };
     ObjectPool.prototype.createNewObject = function () {
-        return this.factory(this.acquiredObjectStack.length + 1);
+        return this.factory(this.acquired.length + 1);
     };
     return ObjectPool;
 }());
