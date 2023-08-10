@@ -13,6 +13,5 @@ class Test<T>{
 }
 
 const test = new Test<Person>()
-// const firstna
 const firstname = test.fetch()?.firstname ?? "Another name"
 console.log(firstname)
